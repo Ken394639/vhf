@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>通時台 · ETI</title>
+  <!-- UI kit: Tabler (MIT) https://github.com/tabler/tabler — vendored for offline -->
+  <link rel="stylesheet" href="vendor/tabler/tabler.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="navbar navbar-expand-md d-print-none border-bottom">
+      <div class="container-xl">
+        <h1 class="navbar-brand navbar-brand-autodark pe-0 pe-md-3 mb-0">
+          <span class="avatar avatar-sm bg-primary text-white me-2">ET</span>
+          <span data-i18n="brand">通時台</span>
+        </h1>
+        <div class="navbar-nav flex-row order-md-last align-items-center gap-2">
+          <span class="text-secondary d-none d-md-inline small" data-i18n="brandSub">Elapsed Time Indication · 離線分析</span>
+          <button type="button" class="btn btn-ghost-secondary btn-sm" id="btnHelp" data-i18n="helpBtn" aria-expanded="false" aria-controls="helpPanel">? 說明</button>
+          <button type="button" class="btn btn-outline-primary btn-sm" id="langToggle" data-i18n="switchTo">English</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-wrapper">
+      <div class="page-body">
+        <div class="container-xl">
+          <details class="card mb-3 help-panel" id="helpPanel">
+            <summary class="card-header cursor-pointer user-select-none" id="helpSummary">
+              <span class="fw-bold" data-i18n="helpTitle">說明：公式、日期時間與各功能</span>
+            </summary>
+            <div class="card-body help-body prose" data-i18n-html="helpHtml"></div>
+          </details>
+
+          <section class="hero" id="hero">
+            <div class="row justify-content-center">
+              <div class="col-lg-10 col-xl-9">
+                <div class="card">
+                  <div class="card-body p-4">
+                    <h2 class="card-title mb-2" data-i18n="uploadTitle">上傳 Status History</h2>
+                    <p class="text-secondary mb-4" data-i18n="uploadDesc">
+                      將設備網頁另存的 .mhtml / .html 拖到下方。本工具在本機瀏覽器執行，不上外網；會解析 TD 站點路徑、斷電／復電，並可匯出表格與圖片。
+                    </p>
+
+                    <label class="dropzone" id="drop" for="fileInput">
+                      <div>
+                        <div class="fw-bold mb-1" data-i18n="dropTitle">選擇檔案或拖放至此</div>
+                        <div class="text-secondary" data-i18n="dropHint">支援 .mhtml、.mht、.html</div>
+                      </div>
+                      <input id="fileInput" type="file" accept=".mhtml,.mht,.html,.htm,text/html" hidden />
+                    </label>
+
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-3 text-secondary small">
+                      <span><span data-i18n="formula">公式</span> <code>(ETI − event ETI) ÷ 24</code></span>
+                      <span class="vr d-none d-sm-inline"></span>
+                      <span data-i18n="acOutage">AC + Reduced = 斷電</span>
+                      <span data-i18n="acRestore">AC + Cleared = 復電</span>
+                      <button type="button" class="btn btn-ghost-secondary btn-sm ms-sm-auto" id="btnDemo" data-i18n="demo">試用示範檔</button>
+                    </div>
+                    <div class="alert alert-danger mt-3 mb-0 d-none" id="error" role="alert"></div>
+                  </div>
+                </div>
+                <p class="text-secondary small mt-3 mb-0" data-i18n="credit">
+                  介面資源：Tabler UI（MIT）· github.com/tabler/tabler · 已下載至本機 vendor，可離線使用
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="results d-none" id="results" aria-live="polite">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+              <div>
+                <ol class="breadcrumb mb-1" id="sitePath" aria-label="breadcrumb">
+                  <li class="breadcrumb-item active">—</li>
+                </ol>
+                <h2 class="page-title mb-2" id="unitTitle">—</h2>
+                <span class="badge bg-success-lt" id="health" data-i18n="healthOk">健康：正常</span>
+              </div>
+              <div class="btn-list">
+                <button type="button" class="btn btn-primary" id="btnPng" data-i18n="downloadPng">下載圖片</button>
+                <button type="button" class="btn" id="btnWord" data-i18n="downloadWord">Word</button>
+                <button type="button" class="btn" id="btnCsv" data-i18n="downloadCsv">CSV</button>
+                <button type="button" class="btn btn-ghost-secondary" id="btnAgain" data-i18n="again">再分析一份</button>
+              </div>
+            </div>
+
+            <div id="captureArea">
+              <div class="capture-brand text-secondary small mb-2 d-none d-print-block" data-i18n="reportTitle">通時台 · ETI 報告</div>
+              <ol class="breadcrumb mb-1 capture-path" id="sitePathCapture"></ol>
+              <h2 class="page-title mb-2 capture-unit" id="unitTitleCapture">—</h2>
+              <p class="mb-3" id="healthCapture">—</p>
+
+              <div class="row row-cards mb-3">
+                <div class="col-sm-6 col-lg-4 col-xl-2">
+                  <div class="card card-sm">
+                    <div class="card-body">
+                      <div class="text-secondary small" data-i18n="metricEti">目前 ETI</div>
+                      <div class="font-monospace" id="mEti">—</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-4 col-xl-2">
+                  <div class="card card-sm">
+                    <div class="card-body">
+                      <div class="text-secondary small" data-i18n="metricStatus">服務狀態</div>
+                      <div class="font-monospace" id="mStatus">—</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-4 col-xl-2">
+                  <div class="card card-sm">
+                    <div class="card-body">
+                      <div class="text-secondary small" data-i18n="metricRef">參考時間</div>
+                      <div class="font-monospace small" id="mRef">—</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-4 col-xl-2">
+                  <div class="card card-sm">
+                    <div class="card-body">
+                      <div class="text-secondary small" data-i18n="metricCount">事件／斷電相關</div>
+                      <div class="font-monospace" id="mCount">—</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-4 col-xl-2">
+                  <div class="card card-sm">
+                    <div class="card-body">
+                      <div class="text-secondary small" data-i18n="metricOutageCount">斷電次數</div>
+                      <div class="font-monospace" id="mOutageCount">—</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-4 col-xl-2">
+                  <div class="card card-sm">
+                    <div class="card-body">
+                      <div class="text-secondary small" data-i18n="metricOutageTotal">斷電總時間</div>
+                      <div class="font-monospace" id="mOutageTotal">—</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card mb-3" id="equipBlock">
+                <div class="card-header">
+                  <h3 class="card-title" data-i18n="sectionTd">TD／站點設備</h3>
+                </div>
+                <div class="card-body">
+                  <div class="chip-wrap" id="tdChips"></div>
+                </div>
+              </div>
+
+              <div class="card mb-3">
+                <div class="card-header">
+                  <h3 class="card-title" data-i18n="sectionPower">斷電／復電</h3>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-vcenter card-table">
+                    <thead>
+                      <tr>
+                        <th data-i18n="colNo">序</th>
+                        <th data-i18n="colType">類型</th>
+                        <th data-i18n="colEvent">事件</th>
+                        <th data-i18n="colSeverity">嚴重度</th>
+                        <th data-i18n="colService">服務</th>
+                        <th data-i18n="colEti">ETI</th>
+                        <th data-i18n="colTime">日期時間</th>
+                        <th data-i18n="colDuration">本次時長</th>
+                        <th data-i18n="colAgo">距今</th>
+                      </tr>
+                    </thead>
+                    <tbody id="powerBody"></tbody>
+                  </table>
+                </div>
+                <div class="card-footer text-secondary" data-i18n="legend">紅底列 = 斷電　綠底列 = 復電</div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title" data-i18n="sectionAll">全部 Status History</h3>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-vcenter card-table">
+                    <thead>
+                      <tr>
+                        <th data-i18n="colNo">序</th>
+                        <th data-i18n="colType">類型</th>
+                        <th data-i18n="colEvent">事件</th>
+                        <th data-i18n="colSeverity">嚴重度</th>
+                        <th data-i18n="colService">服務</th>
+                        <th data-i18n="colEti">ETI</th>
+                        <th data-i18n="colNtp">NTP</th>
+                        <th data-i18n="colTime">日期時間</th>
+                        <th data-i18n="colAgoDays">距今(天)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="allBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-eti" id="toast" role="status"></div>
+  <script src="vendor/tabler/tabler.min.js"></script>
+  <script src="i18n.js"></script>
+  <script src="help-content.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

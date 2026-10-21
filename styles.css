@@ -1,0 +1,131 @@
+/* App-only styles on top of Tabler (MIT) — https://github.com/tabler/tabler */
+
+.dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  border: 1px dashed var(--tblr-border-color, #d0d7de);
+  border-radius: var(--tblr-border-radius, 4px);
+  background: var(--tblr-bg-surface-secondary, #f6f8fa);
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.dropzone:hover,
+.dropzone.is-drag {
+  border-color: var(--tblr-primary, #206bc4);
+  background: color-mix(in srgb, var(--tblr-primary, #206bc4) 8%, white);
+}
+
+.chip-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.75rem;
+  font-family: var(--tblr-font-monospace, ui-monospace, monospace);
+  border: 1px solid var(--tblr-border-color, #d0d7de);
+  border-radius: 100px;
+  background: var(--tblr-bg-surface-secondary, #f6f8fa);
+}
+
+.chip.current {
+  color: var(--tblr-primary, #206bc4);
+  border-color: color-mix(in srgb, var(--tblr-primary, #206bc4) 45%, white);
+  background: color-mix(in srgb, var(--tblr-primary, #206bc4) 12%, white);
+}
+
+.table-striped > tbody > tr.outage > *,
+tr.outage > * {
+  --tblr-table-bg-type: transparent;
+  background-color: var(--tblr-bg-danger-lt, #ffebe9) !important;
+  box-shadow: none !important;
+}
+
+.table-striped > tbody > tr.restore > *,
+tr.restore > * {
+  --tblr-table-bg-type: transparent;
+  background-color: var(--tblr-bg-success-lt, #d3f9d8) !important;
+  box-shadow: none !important;
+}
+
+.toast-eti {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1080;
+  max-width: 20rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--tblr-border-color, #d0d7de);
+  border-radius: var(--tblr-border-radius, 4px);
+  background: var(--tblr-bg-surface, #fff);
+  box-shadow: var(--tblr-shadow, 0 0.5rem 1rem rgba(0, 0, 0, 0.1));
+  font-size: 0.875rem;
+  transform: translateY(120%);
+  opacity: 0;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.toast-eti.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.capture-health.bad {
+  color: var(--tblr-danger, #d63939);
+}
+
+/* Help (? 說明) panel */
+.help-panel > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.help-panel > summary::-webkit-details-marker {
+  display: none;
+}
+.help-panel > summary::after {
+  content: "+";
+  float: right;
+  color: var(--tblr-secondary, #6c7a91);
+  font-weight: 600;
+}
+.help-panel[open] > summary::after {
+  content: "−";
+}
+.help-body h3 {
+  font-size: 1.1rem;
+}
+.help-body h4 {
+  font-size: 0.95rem;
+  margin-top: 1rem;
+  margin-bottom: 0.4rem;
+}
+.help-body pre,
+.help-formula {
+  font-size: 0.875rem;
+  font-family: ui-monospace, "Cascadia Mono", "Segoe UI", "Microsoft JhengHei", monospace, sans-serif;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--tblr-border-radius, 4px);
+  border: 1px solid var(--tblr-border-color, #d0d7de);
+  background: #f1f5f9;
+  color: #1e293b;
+}
+.help-body ul,
+.help-body ol {
+  padding-left: 1.25rem;
+}
+.help-body li {
+  margin-bottom: 0.25rem;
+}
